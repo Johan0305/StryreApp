@@ -19,7 +19,7 @@ export const createList = (name) => {
     try {
       const token = await AsyncStorage.getItem("token");
       const list = await axios.post(
-        "http://192.168.1.140:8080/lists/",
+        "https://styreapp.herokuapp.com/lists/",
         {
           name: name,
         },
@@ -51,7 +51,7 @@ export const getLists = () => {
     try {
       dispatch({ type: LIST_LOADING, payload: true });
       const token = await AsyncStorage.getItem("token");
-      const lists = await axios.get("http://192.168.1.140:8080/lists/", {
+      const lists = await axios.get("https://styreapp.herokuapp.com/lists/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -78,7 +78,7 @@ export const deleteList = (listId, modalFunc) => {
   return async function (dispatch) {
     try {
       const list = await axios.delete(
-        `http://192.168.1.140:8080/lists/${listId}`
+        `https://styreapp.herokuapp.com/lists/${listId}`
       );
       dispatch({ type: DELETE_LIST, payload: list.data.data._id });
       modalFunc(false);
@@ -102,10 +102,9 @@ export const updateList = (listId, data) => {
   return async function (dispatch) {
     try {
       const list = await axios.put(
-        `http://192.168.1.140:8080/lists/${listId}`,
+        `https://styreapp.herokuapp.com/lists/${listId}`,
         data
       );
-      console.log(list);
       dispatch({ type: LIST_UPDATE, payload: list.data.data });
     } catch (err) {
       Alert.alert(

@@ -66,7 +66,7 @@ const Login = ({ navigation }) => {
             onPress={() => console.log("holaaa")}
             style={{ width: "100%", marginBottom: "-5%", marginTop: "-5%" }}
           >
-            <Text style={styles.textA}>¿Olvidaste tu contraseña?</Text>
+            <Text style={styles.textA}>{""}</Text>
           </TouchableHighlight>
           <TouchableHighlight
             activeOpacity={0.6}

@@ -10,6 +10,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import {
   createExpense,
+  EXPENSE_UPDATE_WALLET,
   updateExpense,
 } from "../../store/reducers/Expense.reducer";
 import { USER_UPDATE } from "../../store/reducers/User.reducer";
@@ -25,8 +26,11 @@ const ModalExpense = ({ modalFunc, list, expense }) => {
   const [amount, setAmount] = useState(
     expense === undefined ? "" : expense.amount
   );
-  const [wallet, setWallet] = useState({});
+  const [wallet, setWallet] = useState(
+    expense === undefined ? {} : expense.wallet
+  );
   const dispatch = useDispatch();
+  const [newWallet, setNewWallet] = useState({});
   let date = new Date();
   date = date.toLocaleDateString();
   const finalMount = new Intl.NumberFormat("en-US", {
@@ -154,24 +158,69 @@ const ModalExpense = ({ modalFunc, list, expense }) => {
               onPress={() => {
                 if (expense === undefined) {
                   dispatch(
-                    updateWallet(wallet, {
-                      ...wallet,
-                      income: wallet.income - amount,
-                    })
+                    updateWallet(
+                      wallet,
+                      {
+                        ...wallet,
+                        income: wallet.income - amount,
+                      },
+                      setNewWallet
+                    )
                   );
                   dispatch(createExpense(list, wallet, name, amount, date));
+                  dispatch({
+                    type: EXPENSE_UPDATE_WALLET,
+                    payload: newWallet,
+                  });
                   dispatch({
                     type: USER_UPDATE,
                     payload: { totalAmount: user.totalAmount - amount },
                   });
                 } else {
-                  dispatch(
-                    amount === expense.amount &&
+                  if (
+                    amount !== expense?.amount &&
+                    wallet._id === expense?.wallet._id
+                  ) {
+                    dispatch(
+                      updateWallet(expense.wallet, {
+                        ...expense.wallet,
+                        income: wallet.income + expense.amount - amount,
+                      })
+                    );
+                    dispatch({
+                      type: USER_UPDATE,
+                      payload: {
+                        totalAmount: user.totalAmount + expense.amount - amount,
+                      },
+                    });
+                  }
+
+                  if (wallet._id !== expense?.wallet._id) {
+                    dispatch(
                       updateWallet(wallet, {
                         ...wallet,
-                        totalAmount: wallet.income + expense.amount - amount,
+                        income: wallet.income - amount,
                       })
-                  );
+                    );
+
+                    dispatch(
+                      updateWallet(expense.wallet, {
+                        ...expense.wallet,
+                        income: expense.wallet.income + expense.amount,
+                      })
+                    );
+
+                    dispatch({
+                      type: USER_UPDATE,
+                      payload: {
+                        totalAmount:
+                          expense.amount === amount
+                            ? user.totalAmount
+                            : user.totalAmount + expense.amount - amount,
+                      },
+                    });
+                  }
+
                   dispatch(
                     updateExpense(expense, {
                       ...expense,

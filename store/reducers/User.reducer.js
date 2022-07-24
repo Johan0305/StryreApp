@@ -1,6 +1,9 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
+import { getWallets } from "./Wallet.reducer";
+import { getLists } from "./List.reducer";
+import { getExpenses } from "./Expense.reducer";
 
 const USER_LOADING = "USER_LOADING";
 const USER_SUCCESS = "USER_SUCESS";
@@ -16,7 +19,7 @@ export const registerUser = (name, email, password, navigation) => {
   return async function (dispatch) {
     try {
       const user = await axios.post(
-        `http://192.168.1.140:8080/users/register`,
+        `https://styreapp.herokuapp.com/users/register`,
         {
           name: name,
           email: email,
@@ -24,8 +27,8 @@ export const registerUser = (name, email, password, navigation) => {
         }
       );
       await AsyncStorage.setItem("token", user.data.data.token);
-
-      navigation.navigate("Dashboard");
+      const token = await AsyncStorage.getItem("token");
+      token && navigation.navigate("Dashboard");
     } catch (err) {
       Alert.alert(
         "Ups! Algo mal ha ocurrido",
@@ -45,12 +48,16 @@ export const registerUser = (name, email, password, navigation) => {
 export const loginUser = (email, password, navigation) => {
   return async function (dispatch) {
     try {
-      const user = await axios.post(`http://192.168.1.140:8080/users/login`, {
-        email: email,
-        password: password,
-      });
+      const user = await axios.post(
+        `https://styreapp.herokuapp.com/users/login`,
+        {
+          email: email,
+          password: password,
+        }
+      );
       await AsyncStorage.setItem("token", user.data.data.token);
-      navigation.navigate("Dashboard");
+      const token = await AsyncStorage.getItem("token");
+      token ? navigation.navigate("Dashboard") : null;
     } catch (err) {
       Alert.alert(
         "Ups! Algo mal ha ocurrido",
@@ -72,7 +79,7 @@ export const getDataUser = () => {
     try {
       dispatch({ type: USER_LOADING, payload: true });
       const token = await AsyncStorage.getItem("token");
-      const user = await axios.get(`http://192.168.1.140:8080/users/me`, {
+      const user = await axios.get(`https://styreapp.herokuapp.com/users/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -90,11 +97,15 @@ export const updateUser = (data) => {
     try {
       dispatch({ type: USER_LOADING, payload: true });
       const token = await AsyncStorage.getItem("token");
-      const user = await axios.put(`http://192.168.1.140:8080/users/`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const user = await axios.put(
+        `https://styreapp.herokuapp.com/users/`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       dispatch({ type: USER_UPDATE, payload: user.data.data });
       dispatch({ type: USER_LOADING, payload: false });
     } catch (err) {

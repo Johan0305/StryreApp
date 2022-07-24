@@ -21,7 +21,7 @@ export const createExpense = (list, wallet, name, amount, date) => {
     try {
       const token = await AsyncStorage.getItem("token");
       const expense = await axios.post(
-        `http://192.168.1.140:8080/expenses/${list._id}/${wallet._id}`,
+        `https://styreapp.herokuapp.com/expenses/${list._id}/${wallet._id}`,
         {
           name: name,
           amount: amount,
@@ -57,12 +57,14 @@ export const getExpenses = () => {
   return async function (dispatch) {
     try {
       const token = await AsyncStorage.getItem("token");
-      const expenses = await axios.get(`http://192.168.1.140:8080/expenses/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log(expenses);
+      const expenses = await axios.get(
+        `https://styreapp.herokuapp.com/expenses/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       dispatch({ type: GET_EXPENSES, payload: expenses.data.data });
     } catch {
       Alert.alert(
@@ -84,7 +86,7 @@ export const deleteExpense = (expensed) => {
   return async function (dispatch) {
     try {
       const expense = await axios.delete(
-        `http://192.168.1.140:8080/expenses/${expensed._id}`
+        `https://styreapp.herokuapp.com/expenses/${expensed._id}`
       );
       dispatch({ type: DELETE_EXPENSE, payload: expense.data.data._id });
     } catch {
@@ -107,7 +109,7 @@ export const updateExpense = (expense, data) => {
   return async function (dispatch) {
     try {
       const expensePut = await axios.put(
-        `http://192.168.1.140:8080/expenses/${expense._id}`,
+        `https://styreapp.herokuapp.com/expenses/${expense._id}`,
         data
       );
       dispatch({ type: EXPENSE_UPDATE, payload: expensePut.data.data });

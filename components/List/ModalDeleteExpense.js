@@ -24,7 +24,6 @@ const ModalDeleteExpense = ({ modalFunc, expense }) => {
     maximumFractionDigits: 0,
   }).format(expense.amount);
 
-  console.log(expense);
   return (
     <ModalStructure>
       <View style={styles.containerInfo}>

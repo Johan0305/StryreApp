@@ -36,7 +36,6 @@ const Wallet = ({ route }) => {
     maximumFractionDigits: 0,
   }).format(thisWallet.income);
 
-  console.log(theseExpenses);
   return (
     <View style={styles.containerGlobal}>
       <Modal

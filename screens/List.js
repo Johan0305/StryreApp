@@ -26,7 +26,6 @@ const List = ({ route }) => {
   const theseExpenses = expenses.filter(({ list }) => list === listId);
   const [title, setTitle] = useState(thisList.name);
 
-  console.log(theseExpenses);
   return (
     <View style={styles.containerGlobal}>
       <Modal

@@ -33,7 +33,6 @@ const App = ({ navigation }) => {
   useEffect(() => {
     getToken();
   }, []);
-  console.log(token);
 
   if (loading) {
     return (

@@ -20,15 +20,9 @@ const Profile = ({ route, navigation }) => {
   const { name } = route.params;
   const { user } = useSelector((state) => state.UserReducer);
   const [selectedImage, setSelectedImage] = useState(user.picture);
-  const [updateImg, setUpdateImg] = useState();
+  const [updateImg, setUpdateImg] = useState("");
   const [names, setNames] = useState(user.name);
   const dispatch = useDispatch();
-
-  const handleSubmit = () => {
-    console.log(updateImg);
-    dispatch(updateUser({ ...user, name: names, picture: updateImg }));
-    navigation.navigate("Dashboard");
-  };
 
   let openImagePickerAsync = async () => {
     let permissionResult =
@@ -65,8 +59,12 @@ const Profile = ({ route, navigation }) => {
       });
 
       setUpdateImg(imgUp.data.url);
-      console.log(imgUp.data.url, selectedImage);
     }
+  };
+
+  const handleSubmit = () => {
+    dispatch(updateUser({ ...user, name: names, picture: updateImg }));
+    navigation.navigate("Dashboard");
   };
 
   const closesession = async () => {
@@ -78,7 +76,6 @@ const Profile = ({ route, navigation }) => {
     }
   };
 
-  console.log(user, updateImg);
   return (
     <ScrollView contentContainerStyle={styles.containerGlobal}>
       <KeyboardAvoidingView

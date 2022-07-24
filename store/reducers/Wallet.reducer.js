@@ -22,7 +22,7 @@ export const createWallet = (name, income, color, modalFunc, user) => {
     try {
       const token = await AsyncStorage.getItem("token");
       const wallet = await axios.post(
-        "http://192.168.1.140:8080/wallets/",
+        "https://styreapp.herokuapp.com/wallets/",
         {
           name: name,
           income: income,
@@ -66,19 +66,24 @@ export const getWallets = (user) => {
     try {
       dispatch({ type: WALLET_LOADING, payload: true });
       const token = await AsyncStorage.getItem("token");
-      const wallet = await axios.get("http://192.168.1.140:8080/wallets/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const wallet = await axios.get(
+        "https://styreapp.herokuapp.com/wallets/",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       dispatch(
         updateUser({
           ...user,
           totalAmount: wallet.data.data
             .map(({ income }) => income)
-            .reduce((ac, num) => ac + num),
+            .reduce((ac, num) => ac + num, 0),
         })
       );
+
       dispatch({
         type: GET_WALLETS,
         payload: wallet.data.data,
@@ -104,7 +109,7 @@ export const deleteWallet = (walletId, user, modalFunc) => {
   return async function (dispatch) {
     try {
       const wallet = await axios.delete(
-        `http://192.168.1.140:8080/wallets/${walletId}`
+        `https://styreapp.herokuapp.com/wallets/${walletId}`
       );
       dispatch(
         updateUser({
@@ -133,17 +138,16 @@ export const deleteWallet = (walletId, user, modalFunc) => {
   };
 };
 
-export const updateWallet = (wallet, data) => {
+export const updateWallet = (wallet, data, modalFunc) => {
   return async function (dispatch) {
     try {
       const walletPut = await axios.put(
-        `http://192.168.1.140:8080/wallets/${wallet._id}`,
+        `https://styreapp.herokuapp.com/wallets/${wallet._id}`,
         data
       );
-      dispatch({
-        type: EXPENSE_UPDATE_WALLET,
-        payload: walletPut.data.data,
-      });
+      if (modalFunc !== undefined) {
+        modalFunc(walletPut.data.data);
+      }
       dispatch({ type: WALLET_UPDATE, payload: walletPut.data.data });
     } catch (err) {
       Alert.alert(

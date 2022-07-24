@@ -30,12 +30,14 @@ import { getExpenses } from "../store/reducers/Expense.reducer";
 
 const Dashboard = ({ navigation }) => {
   const { user, loading } = useSelector((state) => state.UserReducer);
-  const { wallets } = useSelector((state) => state.WalletReducer);
-  const { lists } = useSelector((state) => state.ListReducer);
+  const { wallets, loadingWallets } = useSelector(
+    (state) => state.WalletReducer
+  );
+  const { lists, loadingList } = useSelector((state) => state.ListReducer);
   const dispatch = useDispatch();
   const [modalView, setModalView] = useState(false);
   const [nameList, setNameList] = useState("");
-
+  console.log(user);
   useEffect(() => {
     dispatch(getDataUser());
     dispatch(getWallets(user));
@@ -83,7 +85,7 @@ const Dashboard = ({ navigation }) => {
     });
   }, [user]);
 
-  if (loading) {
+  if (loading || loadingWallets || loadingList) {
     return (
       <View
         style={{
@@ -106,7 +108,6 @@ const Dashboard = ({ navigation }) => {
     maximumFractionDigits: 0,
   }).format(user.totalAmount);
 
-  console.log(user);
   return (
     <View style={styles.globalContainer}>
       <Modal
