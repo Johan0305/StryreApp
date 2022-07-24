@@ -75,7 +75,6 @@ export const getDataUser = () => {
       const user = await axios.get(`http://192.168.1.140:8080/users/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
         },
       });
       dispatch({ type: USER_SUCCESS, payload: user.data.data });

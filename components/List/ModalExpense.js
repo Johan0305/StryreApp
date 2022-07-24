@@ -153,6 +153,12 @@ const ModalExpense = ({ modalFunc, list, expense }) => {
               style={[styles.button, { backgroundColor: color }]}
               onPress={() => {
                 if (expense === undefined) {
+                  dispatch(
+                    updateWallet(wallet, {
+                      ...wallet,
+                      income: wallet.income - amount,
+                    })
+                  );
                   dispatch(createExpense(list, wallet, name, amount, date));
                   dispatch({
                     type: USER_UPDATE,

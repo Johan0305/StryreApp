@@ -35,7 +35,6 @@ const Dashboard = ({ navigation }) => {
   const dispatch = useDispatch();
   const [modalView, setModalView] = useState(false);
   const [nameList, setNameList] = useState("");
-  const array = [1, 2, 3, 4, 5, 6, 7, 8];
 
   useEffect(() => {
     dispatch(getDataUser());
@@ -70,7 +69,9 @@ const Dashboard = ({ navigation }) => {
           }
         >
           <Image
-            source={imgProfile}
+            source={
+              user.picture !== "nothing" ? { uri: user.picture } : imgProfile
+            }
             style={{
               width: 35,
               height: 35,
@@ -105,6 +106,7 @@ const Dashboard = ({ navigation }) => {
     maximumFractionDigits: 0,
   }).format(user.totalAmount);
 
+  console.log(user);
   return (
     <View style={styles.globalContainer}>
       <Modal
@@ -165,10 +167,10 @@ const Dashboard = ({ navigation }) => {
               </TouchableHighlight>
               <View
                 style={{
-                  maxWidth: "100%",
+                  width: "80%",
                   height: "110%",
                   alignContent: "center",
-                  marginLeft: "4.35%",
+                  marginLeft: "3.3%",
                 }}
               >
                 <FlatList

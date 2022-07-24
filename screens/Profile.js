@@ -14,24 +14,22 @@ import userImage from "../assets/icons/userBig.png";
 import * as ImagePicker from "expo-image-picker";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from "../store/reducers/User.reducer";
+import axios from "axios";
 
 const Profile = ({ route, navigation }) => {
   const { name } = route.params;
   const { user } = useSelector((state) => state.UserReducer);
   const [selectedImage, setSelectedImage] = useState(user.picture);
-  const [updateImg, setUpdateImg] = useState(user.picture);
+  const [updateImg, setUpdateImg] = useState();
   const [names, setNames] = useState(user.name);
   const dispatch = useDispatch();
 
   const handleSubmit = () => {
-    const data = new FormData();
-    data.append("picture", updateImg);
-    data.append("name", names);
-
-    dispatch(updateUser(data));
-    dispatch(updateUser(data));
+    console.log(updateImg);
+    dispatch(updateUser({ ...user, name: names, picture: updateImg }));
     navigation.navigate("Dashboard");
   };
+
   let openImagePickerAsync = async () => {
     let permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -41,20 +39,34 @@ const Profile = ({ route, navigation }) => {
       return;
     }
 
-    let pickerResult = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
       base64: true,
     });
 
-    if (pickerResult.cancelled === true) {
-      return;
-    }
-    console.log(pickerResult);
+    if (!result.cancelled) {
+      setSelectedImage(result.uri);
 
-    setSelectedImage({ localUri: pickerResult.uri });
+      let base64Img = `data:image/jpg;base64,${result.base64}`;
+
+      //Add your cloud name
+      let apiUrl = "https://api.cloudinary.com/v1_1/styreapp/image/upload";
+
+      let data = {
+        file: base64Img,
+        upload_preset: "styreimgs",
+      };
+
+      const imgUp = await axios.post(apiUrl, JSON.stringify(data), {
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+
+      setUpdateImg(imgUp.data.url);
+      console.log(imgUp.data.url, selectedImage);
+    }
   };
 
   const closesession = async () => {
@@ -66,8 +78,7 @@ const Profile = ({ route, navigation }) => {
     }
   };
 
-  console.log(user, selectedImage.localUri);
-
+  console.log(user, updateImg);
   return (
     <ScrollView contentContainerStyle={styles.containerGlobal}>
       <KeyboardAvoidingView
@@ -86,7 +97,7 @@ const Profile = ({ route, navigation }) => {
               <Image
                 source={
                   selectedImage !== "nothing"
-                    ? { uri: selectedImage.localUri }
+                    ? { uri: selectedImage }
                     : userImage
                 }
                 style={{ height: "100%", width: "100%", borderRadius: 100 }}

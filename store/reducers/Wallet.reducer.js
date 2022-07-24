@@ -34,16 +34,12 @@ export const createWallet = (name, income, color, modalFunc, user) => {
           },
         }
       );
-
-      const hadleUpdate = () => {
-        const updateAmount = user.totalAmount + income;
-        const data = new FormData();
-        data.append("totalAmount", updateAmount);
-
-        dispatch(updateUser(data));
-      };
-
-      hadleUpdate();
+      dispatch(
+        updateUser({
+          ...user,
+          totalAmount: user.totalAmount + income,
+        })
+      );
       dispatch({
         type: WALLET_SUCCESS,
         payload: wallet.data.data,
@@ -75,14 +71,14 @@ export const getWallets = (user) => {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      const updateAmount = wallet.data.data
-        .map(({ income }) => income)
-        .reduce((ac, num) => ac + num);
-      const data = new FormData();
-      data.append("totalAmount", updateAmount);
-
-      dispatch(updateUser(data));
+      dispatch(
+        updateUser({
+          ...user,
+          totalAmount: wallet.data.data
+            .map(({ income }) => income)
+            .reduce((ac, num) => ac + num),
+        })
+      );
       dispatch({
         type: GET_WALLETS,
         payload: wallet.data.data,
