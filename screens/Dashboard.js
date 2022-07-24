@@ -8,33 +8,125 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Modal,
+  FlatList,
+  ActivityIndicator,
 } from "react-native";
+import React from "react";
 import iconPlus from "../assets/icons/plusbutton.png";
 import menu from "../assets/icons/menu.png";
 import WalletCard from "../components/DashboardComponents/WalletCard";
 import ListCard from "../components/DashboardComponents/ListCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import imgProfile from "../assets/icons/userBig.png";
 import ModalDashboard from "../components/DashboardComponents/ModalDashboard";
+import { useSelector, useDispatch } from "react-redux";
+import "intl";
+import "intl/locale-data/jsonp/en";
+import { getDataUser } from "../store/reducers/User.reducer";
+import { getWallets } from "../store/reducers/Wallet.reducer";
+import ModalAdd from "../components/Wallet/ModalAdd";
+import { createList, getLists } from "../store/reducers/List.reducer";
+import { getExpenses } from "../store/reducers/Expense.reducer";
 
-const Dashboard = () => {
+const Dashboard = ({ navigation }) => {
+  const { user, loading } = useSelector((state) => state.UserReducer);
+  const { wallets } = useSelector((state) => state.WalletReducer);
+  const { lists } = useSelector((state) => state.ListReducer);
+  const dispatch = useDispatch();
   const [modalView, setModalView] = useState(false);
+  const [nameList, setNameList] = useState("");
+  const array = [1, 2, 3, 4, 5, 6, 7, 8];
+
+  useEffect(() => {
+    dispatch(getDataUser());
+    dispatch(getWallets(user));
+    dispatch(getLists());
+    dispatch(getExpenses());
+  }, []);
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      title: `Bienvenido ${user.name}`,
+      headerLeft: null,
+      headerStyle: {
+        backgroundColor: "#FFFF",
+      },
+      headerTintColor: "#102840",
+      headerTitleStyle: {
+        fontWeight: "400",
+        fontSize: 20,
+      },
+
+      headerRight: () => (
+        <TouchableHighlight
+          activeOpacity={0.9}
+          underlayColor="#b3b1b1"
+          style={{ right: "7.5%", borderRadius: 20 }}
+          onPress={() =>
+            navigation.navigate("Profile", {
+              name: user.name,
+              picture: user.picture,
+            })
+          }
+        >
+          <Image
+            source={imgProfile}
+            style={{
+              width: 35,
+              height: 35,
+              borderRadius: 50,
+            }}
+          />
+        </TouchableHighlight>
+      ),
+    });
+  }, [user]);
+
+  if (loading) {
+    return (
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          height: "100%",
+        }}
+      >
+        <ActivityIndicator size="large" color="#D3C27F" />
+      </View>
+    );
+  }
+
+  const mountGlobalText = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    currencyDisplay: "symbol",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(user.totalAmount);
+
   return (
-    <ScrollView contentContainerStyle={styles.globalContainer}>
+    <View style={styles.globalContainer}>
       <Modal
         animationType="slide"
         transparent={true}
-        visible={true}
+        visible={modalView}
         onRequestClose={() => {
-          console.log("arroz");
+          setModalView(!modalView);
         }}
       >
-        <ModalDashboard />
+        <ModalDashboard modalFunc={setModalView} />
       </Modal>
-      <KeyboardAvoidingView behavior="height" style={styles.globalContainer}>
+
+      <KeyboardAvoidingView
+        behavior="padding"
+        enabled={false}
+        style={styles.globalContainer}
+      >
         <View style={styles.balanceContainer}>
           <View style={{ backgroundColor: "white" }}>
             <Text style={styles.titleText}>Balance Total</Text>
-            <Text style={styles.titleMount}>$12.345.235.634</Text>
+            <Text style={styles.titleMount}>{mountGlobalText}</Text>
           </View>
         </View>
         <View style={styles.walletContainer}>
@@ -71,8 +163,7 @@ const Dashboard = () => {
                   }}
                 />
               </TouchableHighlight>
-              <ScrollView
-                horizontal={true}
+              <View
                 style={{
                   maxWidth: "100%",
                   height: "110%",
@@ -80,10 +171,16 @@ const Dashboard = () => {
                   marginLeft: "4.35%",
                 }}
               >
-                <WalletCard color={"#DF6767"} />
-                <WalletCard color={"#846A9D"} />
-                <WalletCard color={"#5B94BD"} />
-              </ScrollView>
+                <FlatList
+                  data={wallets}
+                  style={{ width: "100%" }}
+                  horizontal={true}
+                  renderItem={({ item }) => (
+                    <WalletCard navigation={navigation} walletInfo={item} />
+                  )}
+                  keyExtractor={(i, index) => index}
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -91,26 +188,6 @@ const Dashboard = () => {
           <View>
             <View style={{ flexDirection: "row", minWidth: 240 }}>
               <Text style={styles.titleText}>Listas</Text>
-              <TouchableHighlight
-                activeOpacity={0.6}
-                underlayColor="transparent"
-                style={{
-                  height: 32,
-                  width: 28,
-                  justifyContent: "center",
-                  marginRight: 0,
-                }}
-                onPress={() => console.log("holaaa")}
-              >
-                <Image
-                  source={menu}
-                  style={{
-                    width: "100%",
-                    minHeight: 28,
-                    maxHeight: 28,
-                  }}
-                />
-              </TouchableHighlight>
             </View>
           </View>
           <View style={{ flexDirection: "row", minWidth: 100 }}>
@@ -118,12 +195,17 @@ const Dashboard = () => {
               placeholder="Nueva lista"
               placeholderTextColor="#3F3F3F"
               style={styles.buttonCreateList1}
+              value={nameList}
+              onChangeText={(text) => setNameList(text)}
             />
             <TouchableHighlight
               activeOpacity={0.6}
               underlayColor="#41576e"
               style={styles.buttonCreateList2}
-              onPress={() => console.log("no")}
+              onPress={() => {
+                dispatch(createList(nameList));
+                setNameList("");
+              }}
             >
               <Image
                 source={iconPlus}
@@ -136,16 +218,34 @@ const Dashboard = () => {
               />
             </TouchableHighlight>
           </View>
-          <ScrollView contentContainerStyle={{ marginTop: 20 }}>
-            <ListCard />
-            <ListCard />
-            <ListCard />
-            <ListCard />
-            <ListCard />
-          </ScrollView>
+          {lists.length === 0 ? (
+            <View
+              style={{
+                with: "100%",
+                height: "80%",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text
+                style={{ color: "#102840", fontSize: 24, fontWeight: "bold" }}
+              >
+                ¡Este es el espacio para crear tus listas!
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={lists}
+              style={{ marginTop: 20 }}
+              renderItem={({ item }) => (
+                <ListCard navigation={navigation} thisList={item} />
+              )}
+              keyExtractor={(i, index) => index}
+            />
+          )}
         </View>
       </KeyboardAvoidingView>
-    </ScrollView>
+    </View>
   );
 };
 

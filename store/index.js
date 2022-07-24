@@ -1,7 +1,16 @@
 import { createStore, combineReducers, applyMiddleware } from "redux";
-import { listReducer } from "./reducers/List.reducer";
+import { UserReducer } from "./reducers/User.reducer";
+import { WalletReducer } from "./reducers/Wallet.reducer";
+import { ListReducer } from "./reducers/List.reducer";
+import { ExpenseReducer } from "./reducers/Expense.reducer";
+import thunk from "redux-thunk";
 const rootReducer = combineReducers({
-  listReducer,
+  UserReducer,
+  WalletReducer,
+  ListReducer,
+  ExpenseReducer,
 });
 
-export const store = createStore(rootReducer);
+const middleware = applyMiddleware(thunk);
+
+export const store = createStore(rootReducer, middleware);

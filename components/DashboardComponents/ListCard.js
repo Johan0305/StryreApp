@@ -1,26 +1,50 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Image,
+  Modal,
   StyleSheet,
   Text,
   TouchableHighlight,
   View,
 } from "react-native";
+import { useSelector } from "react-redux";
 import next from "../../assets/icons/next.png";
-const ListCard = () => {
+import ModalDeleteList from "./ModalDeleteList";
+const ListCard = ({ navigation, thisList }) => {
+  const { expenses } = useSelector((state) => state.ExpenseReducer);
+  const [modalDeleteList, setModalDeleteList] = useState(false);
+  const filterExpenses = expenses.filter(({ list }) => list === thisList._id);
+
   return (
     <View style={{ marginBottom: 20, flexDirection: "row" }}>
-      <View style={styles.containerGlobal1}>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalDeleteList}
+        onRequestClose={() => {
+          setModalDeleteList(!modalDeleteListsetModalDeleteList);
+        }}
+      >
+        <ModalDeleteList modalFunc={setModalDeleteList} listId={thisList._id} />
+      </Modal>
+      <TouchableHighlight
+        style={styles.containerGlobal1}
+        activeOpacity={0.6}
+        underlayColor="rgba(235, 233, 230, 0.8)"
+        onLongPress={() => setModalDeleteList(true)}
+      >
         <View style={styles.containerInfo}>
-          <Text style={styles.textTitle}>Nombre Lista</Text>
-          <Text style={styles.textInfo}>Tienes 45 gastos</Text>
+          <Text style={styles.textTitle}>{thisList.name}</Text>
+          <Text style={styles.textInfo}>
+            Tienes {filterExpenses.length} gastos
+          </Text>
         </View>
-      </View>
+      </TouchableHighlight>
       <TouchableHighlight
         style={styles.containerGlobal2}
         activeOpacity={0.6}
         underlayColor="#41576e"
-        onPress={() => console.log("no")}
+        onPress={() => navigation.navigate("List", { listId: thisList._id })}
       >
         <Image source={next} style={{ width: 35, height: 35 }} />
       </TouchableHighlight>

@@ -1,15 +1,20 @@
 import { StatusBar } from "expo-status-bar";
+import { useState } from "react";
 import {
   StyleSheet,
   Text,
-  ScrollView,
   TextInput,
-  Image,
   View,
   TouchableHighlight,
 } from "react-native";
+import { useDispatch } from "react-redux";
+import { registerUser } from "../store/reducers/User.reducer";
 
-const Register = () => {
+const Register = ({ navigation }) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
   return (
     <View
       style={{
@@ -26,12 +31,16 @@ const Register = () => {
           placeholder="Nombre"
           style={[styles.input, { marginBottom: "-4%" }]}
           placeholderTextColor={"#102840"}
+          value={name}
+          onChangeText={(text) => setName(text)}
         />
         <TextInput
           placeholder="Correo Electrónico"
           style={styles.input}
           autoComplete={"email"}
           placeholderTextColor={"#102840"}
+          value={email}
+          onChangeText={(text) => setEmail(text)}
         />
         <Text style={styles.textA}>
           Por tu seguridad y la de nuestra comunidad, tu codigo debe contener 4
@@ -44,12 +53,16 @@ const Register = () => {
           keyboardType="numeric"
           placeholderTextColor={"#102840"}
           secureTextEntry={true}
+          value={password}
+          onChangeText={(text) => setPassword(text)}
         />
         <TouchableHighlight
           activeOpacity={0.6}
           underlayColor="#FFECA1"
           style={styles.button}
-          onPress={() => console.log("holaaa")}
+          onPress={() => {
+            dispatch(registerUser(name, email, password, navigation));
+          }}
         >
           <Text style={styles.textButton}>Continuar</Text>
         </TouchableHighlight>

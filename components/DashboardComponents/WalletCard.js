@@ -1,43 +1,89 @@
+import { useState } from "react";
 import {
   Image,
   StyleSheet,
   View,
   Text,
   TouchableHighlight,
+  Modal,
 } from "react-native";
 import iconPlus from "../../assets/icons/plusbutton.png";
+import ModalAdd from "../Wallet/ModalAdd";
+import ModalDeleteWallet from "./ModalDeleteWallet";
 
-const WalletCard = ({ color }) => {
+const WalletCard = ({ navigation, walletInfo }) => {
+  const [modalDeleteWallet, setModalDeleteWallet] = useState(false);
+  const [modalAdd, setModalAdd] = useState(false);
+
+  const finalMount = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    currencyDisplay: "symbol",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(walletInfo.income);
   return (
-    <TouchableHighlight
-      activeOpacity={0.5}
-      underlayColor={color}
-      style={[styles.containerCard, { backgroundColor: color }]}
-      onPress={() => console.log("holaaa")}
-    >
-      <View style={styles.containerInternal}>
-        <Text style={styles.titleWallet}>Efectivo</Text>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Text style={styles.mountWallet}>$500.000</Text>
-          <TouchableHighlight
-            activeOpacity={0.6}
-            underlayColor="transparent"
-            style={styles.button}
-            onPress={() => console.log("holaaa")}
+    <View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalDeleteWallet}
+        onRequestClose={() => {
+          setModalDeleteWallet(!modalDeleteWallet);
+        }}
+      >
+        <ModalDeleteWallet
+          modalFunc={setModalDeleteWallet}
+          idDelete={walletInfo._id}
+        />
+      </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalAdd}
+        onRequestClose={() => {
+          setModalAdd(!modalAdd);
+        }}
+      >
+        <ModalAdd modalFunc={setModalAdd} wallet={walletInfo} />
+      </Modal>
+      <TouchableHighlight
+        activeOpacity={0.5}
+        underlayColor={walletInfo.color}
+        style={[styles.containerCard, { backgroundColor: walletInfo.color }]}
+        onPress={() =>
+          navigation.navigate("Wallet", {
+            walletId: walletInfo._id,
+          })
+        }
+        onLongPress={() => setModalDeleteWallet(true)}
+      >
+        <View style={styles.containerInternal}>
+          <Text style={styles.titleWallet}>{walletInfo.name}</Text>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
-            <Image
-              source={iconPlus}
-              style={{
-                maxWidth: 22,
-                maxHeight: 22,
-                height: 22,
-                width: 22,
-              }}
-            />
-          </TouchableHighlight>
+            <Text style={styles.mountWallet}>{finalMount}</Text>
+            <TouchableHighlight
+              activeOpacity={0.6}
+              underlayColor="transparent"
+              style={styles.button}
+              onPress={() => setModalAdd(true)}
+            >
+              <Image
+                source={iconPlus}
+                style={{
+                  maxWidth: 22,
+                  maxHeight: 22,
+                  height: 22,
+                  width: 22,
+                }}
+              />
+            </TouchableHighlight>
+          </View>
         </View>
-      </View>
-    </TouchableHighlight>
+      </TouchableHighlight>
+    </View>
   );
 };
 

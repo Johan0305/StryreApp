@@ -10,8 +10,17 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import LogoK from "../assets/LogoK.png";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { loginUser } from "../store/reducers/User.reducer";
 
 const Login = ({ navigation }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+
+  useEffect(() => {});
   return (
     <ScrollView
       contentContainerStyle={{
@@ -22,6 +31,7 @@ const Login = ({ navigation }) => {
     >
       <KeyboardAvoidingView
         behavior="height"
+        enabled={false}
         style={{
           alignItems: "center",
           height: "100%",
@@ -37,6 +47,8 @@ const Login = ({ navigation }) => {
             style={styles.input}
             autoComplete={"email"}
             placeholderTextColor={"#102840"}
+            value={email}
+            onChangeText={(text) => setEmail(text)}
           />
           <TextInput
             placeholder="Código"
@@ -45,6 +57,8 @@ const Login = ({ navigation }) => {
             keyboardType="numeric"
             placeholderTextColor={"#102840"}
             secureTextEntry={true}
+            value={password}
+            onChangeText={(text) => setPassword(text)}
           />
           <TouchableHighlight
             activeOpacity={0.6}
@@ -58,7 +72,9 @@ const Login = ({ navigation }) => {
             activeOpacity={0.6}
             underlayColor="#FFECA1"
             style={styles.button}
-            onPress={() => navigation.navigate("Dashboard")}
+            onPress={() =>
+              dispatch(loginUser(email.toLowerCase(), password, navigation))
+            }
           >
             <Text style={styles.textButton}>Continuar</Text>
           </TouchableHighlight>
